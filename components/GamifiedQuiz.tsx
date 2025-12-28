@@ -127,11 +127,9 @@ export const GamifiedQuiz: React.FC<{ lang: Language }> = ({ lang }) => {
             Background: Solid Black (Hex #000000). 
             High contrast, vibrant colors.`;
 
-            // COST OPTIMIZATION: Switched to gemini-2.5-flash-image
             const response = await ai.models.generateContent({
                 model: 'gemini-2.5-flash-image',
                 contents: { parts: [{ text: finalPrompt }] },
-                // Config removed as flash-image handles defaults well and doesn't strictly require aspect/size objects
             });
 
             for (const part of response.candidates?.[0]?.content?.parts || []) {
@@ -306,24 +304,26 @@ export const GamifiedQuiz: React.FC<{ lang: Language }> = ({ lang }) => {
             {optionText && (
                 <div className={`
                     absolute mb-1 w-28 md:w-48 bg-gray-900/95 border border-white/20 p-1.5 md:p-2 rounded-lg text-[10px] md:text-xs text-center text-white font-mono pointer-events-none z-20 
-                    shadow-[0_0_15px_rgba(0,0,0,0.8)] backdrop-blur-md transition-all
-                    ${positionClass.includes('bottom') ? 'bottom-full mb-3' : 'top-full mt-3'}
+                    shadow-[0_0_15px_rgba(0,0,0,0.8)] backdrop-blur-md transition-all border-l-4
+                    ${positionClass.includes('bottom') ? 'bottom-full mb-3 border-l-green-500' : 
+                      positionClass.includes('top-2') ? 'top-full mt-3 border-l-yellow-400' :
+                      positionClass.includes('left-6') ? 'top-full mt-2 border-l-blue-500' : 
+                      'top-full mt-2 border-l-red-500'}
                 `}>
                     {optionText}
-                    <div className={`absolute left-1/2 -translate-x-1/2 w-2 h-2 bg-gray-900 border-l border-b border-white/20 rotate-45 ${positionClass.includes('bottom') ? '-bottom-1' : '-top-1 border-t border-r border-b-0 border-l-0'}`}></div>
                 </div>
             )}
             <button
                 onClick={onClick}
                 disabled={!!feedbackMsg}
                 className={`
-                    w-12 h-12 md:w-14 md:h-14 rounded-full shadow-[0_4px_0_rgba(0,0,0,0.5),0_5px_10px_rgba(0,0,0,0.5)] active:shadow-none active:translate-y-1 transition-all
-                    flex items-center justify-center font-bold text-lg md:text-xl text-black/80
-                    ${colorClass} border-t border-white/30 relative overflow-hidden
+                    w-12 h-12 md:w-16 md:h-16 rounded-full shadow-[0_4px_0_rgba(0,0,0,0.5),0_6px_10px_rgba(0,0,0,0.5)] active:shadow-none active:translate-y-1 transition-all
+                    flex items-center justify-center font-black text-lg md:text-2xl text-black/80
+                    ${colorClass} border-t-2 border-white/40 relative overflow-hidden backdrop-brightness-110
                 `}
             >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent pointer-events-none"></div>
-                {label}
+                <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-black/20 pointer-events-none"></div>
+                <span className="drop-shadow-sm relative z-10">{label}</span>
             </button>
         </div>
     );
