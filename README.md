@@ -1,129 +1,237 @@
-# SUIS Smart Hub / 智协
 
-**SUIS Smart Hub (智协)** is a next-generation web application designed to empower educators with the full suite of Google's Gemini 3.0 AI tools. From deep lesson planning to generating 4K educational visuals and videos, this app is the ultimate teacher's assistant.
+# SUIS Smart Hub / 智协 🚀
 
-## Features
+![Status](https://img.shields.io/badge/Status-Production_Ready-success)
+![Version](https://img.shields.io/badge/Version-1.0.0-blue)
+![Tech](https://img.shields.io/badge/Stack-React_19_|_TypeScript_|_Vite-3178c6)
+![AI](https://img.shields.io/badge/Powered_By-Google_Gemini_3.0-orange)
+![License](https://img.shields.io/badge/License-MIT-green)
 
-*   **Teacher's Command Center (ChatBot):**
-    *   **Curriculum Mode:** Unit plans, quiz generation, and IEP accommodations (Powered by Gemini 3.0 Pro with Thinking).
-    *   **Admin Mode:** Draft parent emails, behavioral reports, and newsletters instantly.
-    *   **Creative Mode:** Story starters, roleplay scenarios, and text simplification.
+**The AI Operating System for Next-Generation Educators.**
 
-*   **Literacy Station (K-3 Focus):**
-    *   Generate decodable reading passages targeting specific phonics rules (e.g., "sh", "silent e") and sight words.
+SUIS Smart Hub is a comprehensive, bilingual (English/Chinese), web-based dashboard designed to empower teachers with the full suite of Google's Gemini API capabilities. From generating 4K visual aids and cinematic educational videos to real-time voice tutoring and complex curriculum architecture, this platform unifies disjointed AI tools into a single, cohesive interface.
 
-*   **Career Connector (6-12 Focus):**
-    *   Connect academic topics (Math, History, Science) to real-world careers and generate job-related student challenges.
+---
 
-*   **PBL Architect (Project Based Learning):**
-    *   Design rigorous, multi-week projects.
-    *   Generates Driving Questions, Entry Events, Student Products, and Milestones.
+## 📑 Table of Contents
 
-*   **Science Lab Generator:**
-    *   Design safe, hands-on experiments based on available materials (e.g., "Kitchen Supplies" or "Full Lab").
-    *   Includes safety precautions and scientific explanations.
+1.  [✨ Key Features](#-key-features)
+2.  [🧠 AI Model Architecture](#-ai-model-architecture)
+3.  [🛠 Tech Stack](#-tech-stack)
+4.  [📂 Project Structure](#-project-structure)
+5.  [🚀 Getting Started](#-getting-started)
+6.  [🔑 Configuration & Environment](#-configuration--environment)
+7.  [🐳 Docker & Deployment](#-docker--deployment)
+8.  [🎨 UI/UX Design System](#-uiux-design-system)
+9.  [⚠️ Troubleshooting](#-troubleshooting)
 
-*   **Debate & Critical Thinking Coach:**
-    *   Generate debate briefs for any topic.
-    *   Includes arguments, counter-arguments, rebuttals, and logical fallacy checks.
+---
 
-*   **Worksheet Wizard:**
-    *   Instantly generate Markdown-formatted printable worksheets.
-    *   Types: Multiple choice, matching, word problems, reading comprehension.
+## ✨ Key Features
 
-*   **Rubric Builder:**
-    *   Generate professional Markdown grading rubrics for any assignment.
-    *   Customize by grade level and scale (4-point, 5-point, etc.).
-    
-*   **Differentiation Engine:**
-    *   Instantly rewrite any text into three levels: **Support** (ESL/Lower Lexile), **On-Level**, and **Enrichment** (Advanced).
-    *   Uses `gemini-3-flash-preview` JSON mode for structured output.
+The application is organized into four primary domains, accessible via a responsive sidebar navigation.
 
-*   **SEL Hub (Social Emotional Learning):**
-    *   Generate relatable scenarios, discussion questions, and role-play activities to teach empathy, conflict resolution, and emotional regulation.
+### 1. Core (Planning & Pedagogy)
+*   **Smart Assistant (ChatBot):** Context-aware chat with three modes: *Curriculum Designer* (Thinking model), *Admin Assistant* (Flash model), and *Creative Muse*.
+*   **AI Training Academy:** Interactive modules teaching teachers how to use AI (Prompt Engineering, Ethics, Differentiation).
+*   **Class Manager:** Automates report card comment generation and analyzes classroom CSV data for trends.
+*   **Worksheet Wizard:** Generates formatted Markdown worksheets (Quizzes, Matching, Reading Comp).
+*   **Listening Lab:** Creates full exam-style listening scripts, generates the corresponding questions, and synthesizes the audio using multi-speaker TTS.
+*   **Assessment Tools:** AI grading of student work (supports text input and image uploads of handwriting).
+*   **Wellbeing & SEL:** Generates mindfulness scripts, check-in questions, and student support plans.
+*   **Differentiation Engine:** Instantly rewrites text into three tiers: Support, Core, and Enrichment.
 
-*   **Flashcard Generator:**
-    *   Generate study decks for any topic.
-    *   Includes a 3D-flip interactive preview.
+### 2. Media (Content Creation)
+*   **Visual Studio:** Generates high-fidelity educational diagrams and illustrations using `gemini-3-pro-image-preview`.
+*   **Veo Video Engine:** Creates 720p/1080p educational videos using `veo-3.1-fast-generate-preview`.
+*   **Video Planner:** Analyzes uploaded video files to generate lesson plans, vocabulary lists, and quizzes.
+*   **Classroom DJ:** Generates curated playlists based on classroom activity vibe and AI-composed melodies via Lyria logic.
+*   **Coloring Page Maker:** Creates printable, high-contrast black and white line art for students.
 
-*   **STEM Step-by-Step Solver:**
-    *   Uses Gemini 3.0 Pro's **Thinking Mode** to break down complex Math and Science problems logically.
-    *   Accepts photo uploads of equations.
+### 3. Global (Language & World)
+*   **Live Language Tutor:** Real-time, low-latency voice conversation using `gemini-2.5-flash-native-audio`.
+*   **Phonics Lab:** Specialized tool for ESL learners focusing on specific phonemes with TTS examples.
+*   **Geo Discovery:** Interactive geography games including landmark identification via image recognition.
+*   **BioByte:** An evolutionary biology simulation game where answering quizzes evolves a digital creature.
+*   **Grounded Search:** Fact-checking and research tool utilizing Google Search and Maps grounding.
 
-*   **Classroom Escape Room Builder:**
-    *   Generates a narrative-driven game with a Mission, Goal, and 3 distinct subject-based puzzles (and answer keys) to engage students.
+### 4. Tools (Utilities & Games)
+*   **Smart Whiteboard:** An interactive canvas where drawings can be analyzed and math problems solved by vision models.
+*   **Gamified Quiz (Pixel Quest):** A Roguelike RPG where students fight monsters by answering subject-specific questions.
+*   **Physics Lab:** Interactive Canvas simulations (Projectile, Pendulum) analyzed by AI for physics principles.
+*   **CS Voyager:** Coding curriculum for Web Dev and Algorithms with an AI code reviewer.
+*   **T.O.M (The Omniscient Mind):** A sarcastic, British-accented persona chatbot showcasing advanced system instruction and TTS.
 
-*   **Global Communicator:**
-    *   Translate parent emails and announcements into 9+ languages (including Chinese Simplified/Traditional).
-    *   Adjusts tone (Professional, Warm, Urgent) for appropriate context.
+---
 
-*   **AI Assessment & Grading:**
-    *   **Handwriting Analysis:** Upload photos of student work. Gemini 3.0 Pro analyzes, grades, and provides constructive feedback.
-    *   **Rubric Integration:** Adjustable grading criteria based on grade level and subject.
+## 🧠 AI Model Architecture
 
-*   **Classroom Visuals Generator:**
-    *   Create stunning, high-definition (up to 2K) educational diagrams, posters, and illustrations using `gemini-3-pro-image-preview`.
-    *   **Analyze:** Upload student work or textbook images for AI-powered analysis and feedback.
+This application strictly adheres to the `@google/genai` SDK standards and utilizes specific models for specific tasks to optimize for cost, latency, and quality.
 
-*   **Edu-Shorts Creator (Veo 3.1):**
-    *   Generate 720p educational videos for engaging lesson intros or summaries using `veo-3.1-generate-preview`.
-    *   Supports text-to-video and image-to-video workflows.
+| Feature Type | Model Used | Reason |
+| :--- | :--- | :--- |
+| **Complex Reasoning** | `gemini-3-pro-preview` | Used for lesson planning, STEM solving, and coding. High thinking budget (up to 8k tokens) enabled. |
+| **Fast Text/Chat** | `gemini-3-flash-preview` | Used for admin tasks, translations, and real-time UI updates. Low latency. |
+| **Image Generation** | `gemini-3-pro-image-preview` | Generates photorealistic and vector art (1K resolution). |
+| **Video Generation** | `veo-3.1-fast-generate-preview` | Creates short video clips. Requires specific paid API key flow. |
+| **Audio/Speech** | `gemini-2.5-flash-preview-tts` | Text-to-Speech with specific voice configs (Kore, Puck, Zephyr). |
+| **Real-time Voice** | `gemini-2.5-flash-native-audio` | Used in Live Tutor and T.O.M for websocket-based low-latency audio streaming. |
+| **Vision Analysis** | `gemini-3-pro-preview` | Analyzing handwriting, whiteboard sketches, and video frames. |
 
-*   **Live Language Tutor:**
-    *   Real-time, low-latency voice conversation with Gemini using the Live API (`gemini-2.5-flash-native-audio-preview`).
-    *   Perfect for language teachers to demonstrate pronunciation or for students to practice conversation.
+---
 
-*   **Grounded Fact Checker:**
-    *   Uses Google Search Grounding to find the most recent events, news, and facts for current events classes.
-    *   Includes Google Maps integration for geography lessons.
+## 🛠 Tech Stack
 
-*   **Lesson Gamifier:**
-    *   Turn any dry topic into an engaging classroom game concept instantly.
+### Frontend Core
+*   **Framework:** [React 19](https://react.dev/)
+*   **Build Tool:** [Vite 5](https://vitejs.dev/)
+*   **Language:** [TypeScript 5](https://www.typescriptlang.org/)
 
-*   **Magic Resource Converter:**
-    *   Digitize worksheets via OCR, extract table data to CSV, and reformat text using Gemini vision capabilities.
+### Styling & UI
+*   **CSS Framework:** [Tailwind CSS 3.4](https://tailwindcss.com/)
+*   **Design Paradigm:** Glassmorphism (Backdrop blur, translucent layers).
+*   **3D Graphics:** [Three.js](https://threejs.org/) (Interactive background particles and dragons).
+*   **Icons:** Custom SVG Icon Set.
 
-## To-Do List (Future Roadmap)
+### AI & Data
+*   **SDK:** [`@google/genai`](https://www.npmjs.com/package/@google/genai)
+*   **Markdown Rendering:** Custom parser for safe HTML output.
+*   **Audio Processing:** Web Audio API (`ScriptProcessorNode`, `AudioContext`) for PCM encoding/decoding.
 
-We are building this app in chunks. Here are the next planned updates:
+---
 
-1.  **LMS Integration:** Simulate connection to Google Classroom or Canvas to "push" assignments.
-2.  **PDF Export:** Allow teachers to download generated worksheets and unit plans as formatted PDFs.
-3.  **Seating Chart Optimizer:** Use AI reasoning to suggest seating arrangements based on student behavior profiles.
-4.  **Voice Memos:** Allow teachers to dictate grades/notes instead of typing.
+## 📂 Project Structure
 
-## Tech Stack
+```text
+.
+├── components/            # 50+ Specialized React Components
+│   ├── AiTraining.tsx     # AI Learning Modules
+│   ├── ChatBot.tsx        # Main Assistant
+│   ├── GamifiedQuiz.tsx   # RPG Game Component
+│   ├── LiveChat.tsx       # Real-time Audio
+│   ├── ThreeBackground.tsx# 3D Background Visuals
+│   └── ... (and many more)
+├── services/
+│   └── geminiService.ts   # Centralized API Configuration
+├── utils/
+│   └── audioUtils.ts      # PCM/WAV Encoding & Decoding helpers
+├── App.tsx                # Main Router & Layout Logic
+├── index.tsx              # Entry Point
+├── index.html             # HTML Shell
+├── package.json           # Dependencies & Scripts
+├── Dockerfile             # Multi-stage build definition
+├── vite.config.ts         # Bundler Configuration
+└── tsconfig.json          # TypeScript Configuration
+```
 
-*   **Frontend:** React 19, TypeScript
-*   **Styling:** Tailwind CSS (Glassmorphism theme)
-*   **3D Graphics:** Three.js (Interactive background particle system)
-*   **AI SDK:** `@google/genai` (Official Google GenAI SDK)
-*   **Models:**
-    *   `gemini-3-pro-preview`
-    *   `gemini-3-flash-preview`
-    *   `gemini-3-pro-image-preview`
-    *   `veo-3.1-fast-generate-preview`
-    *   `gemini-2.5-flash-native-audio-preview-09-2025`
+---
 
-## Setup & Installation
+## 🚀 Getting Started
 
-1.  **Clone the repository.**
-2.  **Environment Variables:**
-    Ensure you have a valid Google Gemini API Key. The app expects `process.env.API_KEY` to be injected by the environment.
-3.  **Install Dependencies:**
-    (Note: This project uses CDN imports via `importmap` for React and GenAI SDK to run without a build step in some environments, but for local dev, install via npm).
+### Prerequisites
+*   Node.js v18+
+*   npm or yarn
+*   A Google Cloud Project with the **Gemini API** enabled.
+
+### Local Installation
+
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/suis-smart-hub.git
+    cd suis-smart-hub
+    ```
+
+2.  **Install dependencies:**
     ```bash
     npm install
     ```
-4.  **Run:**
-    ```bash
-    npm start
+
+3.  **Set up Environment Variables:**
+    To run locally, you need to define your API key.
+    
+    *Option A (Quick):* Create a `.env` file in the root:
+    ```env
+    VITE_API_KEY=your_google_api_key_here
     ```
+    *Note: The code uses `process.env.API_KEY` via a Vite define replacement.*
 
-## Copyright
-
-**© 2025 SUIS Smart Hub**
-All rights reserved. This software is designed for educational assistance purposes.
+4.  **Run the development server:**
+    ```bash
+    npm run dev
+    ```
+    Open `http://localhost:5173` in your browser.
 
 ---
-*Built with ❤️ for Teachers.*
+
+## 🔑 Configuration & Environment
+
+The application relies heavily on the `API_KEY`.
+
+*   **Standard Features:** Most features use the key injected at build time or runtime via `process.env.API_KEY`.
+*   **Veo (Video) & Paid Features:** The `VideoTools.tsx` component includes an `ApiKeySelector`. This triggers a special OAuth/API key selection flow (`window.aistudio.openSelectKey`) required by Google for high-cost model usage like Veo.
+
+**Metadata:**
+Permissions for microphone and geolocation are requested in `metadata.json` for the Live API and Grounded Maps search features.
+
+---
+
+## 🐳 Docker & Deployment
+
+The project includes a multi-stage `Dockerfile` optimized for Google Cloud Run.
+
+### Building the Container
+
+```bash
+docker build -t suis-smart-hub .
+```
+
+### Running Locally (Docker)
+
+```bash
+# You must pass the API KEY as an environment variable
+docker run -p 8080:8080 -e API_KEY="your_actual_api_key" suis-smart-hub
+```
+
+### Deploying to Google Cloud Run
+
+1.  **Build and Submit:**
+    ```bash
+    gcloud builds submit --tag gcr.io/PROJECT-ID/suis-smart-hub
+    ```
+2.  **Deploy:**
+    ```bash
+    gcloud run deploy suis-smart-hub \
+      --image gcr.io/PROJECT-ID/suis-smart-hub \
+      --platform managed \
+      --allow-unauthenticated \
+      --set-env-vars API_KEY=your_api_key
+    ```
+
+---
+
+## 🎨 UI/UX Design System
+
+*   **Themes:** Fully supported Dark Mode (Space/Cyberpunk aesthetic) and Light Mode (Clean/Professional).
+*   **Animations:** Uses native CSS animations (`animate-fade-in`, `animate-pulse`, `animate-float`) for performance.
+*   **Responsiveness:** Mobile-first approach. Sidebar converts to an off-canvas drawer on smaller screens.
+*   **Interactivity:** Glass panels, hover glows, and 3D background elements create a depth-rich environment.
+
+---
+
+## ⚠️ Troubleshooting
+
+**1. "Microphone Access Denied" in Live Tutor:**
+*   Ensure you are serving the app over `https://` or `localhost`. Browsers block audio input on insecure origins.
+
+**2. Video Generation Fails:**
+*   Veo models often require a specific billing-enabled project key. Use the "Select API Key" button within the Video Creator tab to authorize correctly.
+
+**3. Audio Playback Issues:**
+*   The raw PCM audio returned by Gemini is 24kHz. The `audioUtils.ts` handles downsampling/decoding. If audio sounds "chipmunk-like" or slow, check the `sampleRate` in `AudioTools.tsx`.
+
+**4. Three.js Background Lag:**
+*   The particle system scales based on device pixel ratio. If laggy on high-DPI screens, the renderer explicitly caps pixel ratio to 2 in `ThreeBackground.tsx`.
+
+---
+
+© 2025 SUIS Smart Hub. Built for the SUIS AI Competition.
