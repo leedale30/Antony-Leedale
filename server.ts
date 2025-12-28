@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 import path from 'path';
@@ -6,7 +7,7 @@ import { Buffer } from 'buffer';
 
 // --- Configuration ---
 const PORT = process.env.PORT || 8080;
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'gemini'; // Default password
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'LEEDALE666888'; // Default password
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
