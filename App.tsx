@@ -41,16 +41,17 @@ import { PhonicsLab } from './components/PhonicsLab';
 import { GeoDiscovery } from './components/GeoDiscovery';
 import { BioByte } from './components/BioByte';
 import { StudyGuideGenerator } from './components/StudyGuideGenerator';
+import { ListeningSkills } from './components/ListeningSkills';
 import { SchoolLogo } from './components/SchoolLogo';
 import { TabButton } from './components/TabButton';
 import { 
     IconChat, IconImage, IconVideo, IconAudio, IconSearch, 
     IconGame, IconCheck, IconDocument, IconTranslate, IconCalculator,
     IconLayers, IconCards, IconTable, IconHeart, IconBlueprint, IconKey,
-    IconBeaker, IconScale, IconBook, IconBriefcase, IconMagic, IconTools, IconSword, IconPi, IconChart, IconPresentation, IconAtom, IconGroup, IconCode, IconClipboard, IconNetwork, IconAcademic, IconMusic, IconHeadphones, IconCoffee, IconBoard, IconWave, IconGlobe, IconDna, IconNotebook
+    IconBeaker, IconScale, IconBook, IconBriefcase, IconMagic, IconTools, IconSword, IconPi, IconChart, IconPresentation, IconAtom, IconGroup, IconCode, IconClipboard, IconNetwork, IconAcademic, IconMusic, IconHeadphones, IconCoffee, IconBoard, IconWave, IconGlobe, IconDna, IconNotebook, IconEar
 } from './components/Icons';
 
-export type Tab = 'plan' | 'worksheet' | 'rubric' | 'pbl' | 'assess' | 'diff' | 'sel' | 'literacy' | 'stem' | 'lab' | 'debate' | 'career' | 'flashcards' | 'escape' | 'visuals' | 'video' | 'tutor' | 'research' | 'translate' | 'gamify' | 'convert' | 'toolkit' | 'quizgame' | 'mathGlossary' | 'infographic' | 'presentation' | 'physics' | 'colab' | 'cs' | 'ems' | 'graph' | 'market' | 'music' | 'dj' | 'staff' | 'board' | 'phonics' | 'geo' | 'bio' | 'study';
+export type Tab = 'plan' | 'worksheet' | 'rubric' | 'pbl' | 'assess' | 'diff' | 'sel' | 'literacy' | 'stem' | 'lab' | 'debate' | 'career' | 'flashcards' | 'escape' | 'visuals' | 'video' | 'tutor' | 'research' | 'translate' | 'gamify' | 'convert' | 'toolkit' | 'quizgame' | 'mathGlossary' | 'infographic' | 'presentation' | 'physics' | 'colab' | 'cs' | 'ems' | 'graph' | 'market' | 'music' | 'dj' | 'staff' | 'board' | 'phonics' | 'geo' | 'bio' | 'study' | 'listening';
 export type Language = 'en' | 'zh';
 
 const App: React.FC = () => {
@@ -108,7 +109,8 @@ const App: React.FC = () => {
               phonics: "Phonics Lab",
               geo: "Geo Discovery",
               bio: "BioByte Evolution",
-              study: "Study Guide"
+              study: "Study Guide",
+              listening: "Listening Lab"
           },
           headers: {
               plan: "Teacher's Command Center",
@@ -150,7 +152,8 @@ const App: React.FC = () => {
               phonics: "Phonics & Pronunciation Lab",
               geo: "Geography & Culture Discovery",
               bio: "BioByte Evolution Lab",
-              study: "Smart Study Guide Generator"
+              study: "Smart Study Guide Generator",
+              listening: "ESL Listening Skills Lab"
           }
       },
       zh: {
@@ -200,7 +203,8 @@ const App: React.FC = () => {
               phonics: "自然拼读",
               geo: "地理发现",
               bio: "生物进化",
-              study: "学习指南"
+              study: "学习指南",
+              listening: "听力实验室"
           },
           headers: {
               plan: "教师指挥中心",
@@ -242,7 +246,8 @@ const App: React.FC = () => {
               phonics: "自然拼读与发音实验室",
               geo: "地理与文化探索中心",
               bio: "BioByte 进化实验室",
-              study: "智能学习指南生成器"
+              study: "智能学习指南生成器",
+              listening: "ESL 听力技能生成实验室"
           }
       }
   }[lang];
@@ -289,6 +294,7 @@ const App: React.FC = () => {
       case 'geo': return <GeoDiscovery lang={lang} />;
       case 'bio': return <BioByte lang={lang} />;
       case 'study': return <StudyGuideGenerator lang={lang} />;
+      case 'listening': return <ListeningSkills lang={lang} />;
       default: return <ChatBot lang={lang} onNavigate={setActiveTab} />;
     }
   }, [activeTab, lang]);
@@ -346,6 +352,7 @@ const App: React.FC = () => {
             <TabButton label={t.tabs.assistant} isActive={activeTab === 'plan'} onClick={() => setActiveTab('plan')} icon={<IconChat />} />
             <TabButton label={t.tabs.ems} isActive={activeTab === 'ems'} onClick={() => setActiveTab('ems')} icon={<IconClipboard />} />
             <TabButton label={t.tabs.worksheet} isActive={activeTab === 'worksheet'} onClick={() => setActiveTab('worksheet')} icon={<IconDocument />} />
+            <TabButton label={t.tabs.listening} isActive={activeTab === 'listening'} onClick={() => setActiveTab('listening')} icon={<IconEar />} />
             <TabButton label={t.tabs.study} isActive={activeTab === 'study'} onClick={() => setActiveTab('study')} icon={<IconNotebook />} />
             <TabButton label={t.tabs.rubric} isActive={activeTab === 'rubric'} onClick={() => setActiveTab('rubric')} icon={<IconTable />} />
             <TabButton label={t.tabs.pbl} isActive={activeTab === 'pbl'} onClick={() => setActiveTab('pbl')} icon={<IconBlueprint />} />
