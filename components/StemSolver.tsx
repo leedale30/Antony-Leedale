@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { getGeminiAI, fileToBase64 } from '../services/geminiService';
 import type { Language } from '../App';
@@ -62,7 +63,8 @@ export const StemSolver: React.FC<{ lang: Language }> = ({ lang }) => {
 
             let response;
             
-            const config = { thinkingConfig: { thinkingBudget: 8000 } };
+            // Reduced thinking budget for cost optimization
+            const config = { thinkingConfig: { thinkingBudget: 2048 } };
 
             if (imageFile) {
                 const base64Image = await fileToBase64(imageFile);

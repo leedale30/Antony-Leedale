@@ -16,7 +16,7 @@ type Mode = 'planner' | 'admin' | 'creative';
 const modelConfig = {
     planner: 'gemini-3-pro-preview', 
     admin: 'gemini-3-flash-preview', 
-    creative: 'gemini-3-pro-preview', 
+    creative: 'gemini-3-flash-preview', // Downgraded to Flash for cost
 };
 
 // Templates with bilingual support

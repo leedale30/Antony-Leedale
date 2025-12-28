@@ -72,11 +72,8 @@ export const WorksheetWizard: React.FC<{ lang: Language }> = ({ lang }) => {
             `;
 
             const response = await ai.models.generateContent({
-                model: 'gemini-3-pro-preview',
+                model: 'gemini-3-flash-preview', // Downgraded to Flash
                 contents: prompt,
-                config: {
-                    thinkingConfig: { thinkingBudget: 4000 }
-                }
             });
 
             setResult(response.text || "Failed to generate worksheet.");

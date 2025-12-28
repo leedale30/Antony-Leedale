@@ -10,6 +10,15 @@ export default defineConfig(({ mode }) => {
     define: {
       // Polyfill process.env.API_KEY for the existing code
       'process.env.API_KEY': JSON.stringify(env.API_KEY)
+    },
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+          secure: false,
+        }
+      }
     }
   }
 })

@@ -127,10 +127,11 @@ export const GamifiedQuiz: React.FC<{ lang: Language }> = ({ lang }) => {
             Background: Solid Black (Hex #000000). 
             High contrast, vibrant colors.`;
 
+            // COST OPTIMIZATION: Switched to gemini-2.5-flash-image
             const response = await ai.models.generateContent({
-                model: 'gemini-3-pro-image-preview',
+                model: 'gemini-2.5-flash-image',
                 contents: { parts: [{ text: finalPrompt }] },
-                config: { imageConfig: { aspectRatio: "1:1", imageSize: "1K" } }
+                // Config removed as flash-image handles defaults well and doesn't strictly require aspect/size objects
             });
 
             for (const part of response.candidates?.[0]?.content?.parts || []) {

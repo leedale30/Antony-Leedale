@@ -4,6 +4,8 @@ import { TabButton } from './components/TabButton';
 import { LandingPage } from './components/LandingPage';
 import { ThreeBackground } from './components/ThreeBackground';
 import { GlobalChatAssistant } from './components/GlobalChatAssistant';
+import { LoginPage } from './components/LoginPage';
+import { authService } from './services/authService';
 
 // Tool Components
 import { ChatBot } from './components/ChatBot';
@@ -79,12 +81,17 @@ export type Tab =
     | 'staff' | 'board' | 'toolkit' | 'quizgame' | 'gamify' | 'music' | 'tom';
 
 const App: React.FC = () => {
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [activeTab, setActiveTab] = useState<Tab>('plan');
-    const [lang, setLang] = useState<Language>('en');
+    const [lang, setLang] = useState<Language>('zh');
     const [theme, setTheme] = useState<Theme>('dark');
     const [showLanding, setShowLanding] = useState(true);
     const [showDragon, setShowDragon] = useState(true);
     const [sidebarOpen, setSidebarOpen] = useState(false); // Mobile sidebar state
+
+    useEffect(() => {
+        setIsAuthenticated(authService.isAuthenticated());
+    }, []);
 
     const toggleLang = () => setLang(prev => prev === 'en' ? 'zh' : 'en');
     
@@ -103,12 +110,17 @@ const App: React.FC = () => {
         setSidebarOpen(false); // Close sidebar on mobile after selection
     };
 
+    const handleLogout = () => {
+        authService.logout();
+    };
+
     const t = {
         en: {
             core: "Core",
             media: "Media",
             global: "Global",
             tools: "Tools",
+            logout: "Logout",
             tabs: {
                 assistant: "Smart Assistant",
                 training: "AI Academy",
@@ -165,6 +177,7 @@ const App: React.FC = () => {
             media: "媒体",
             global: "全球",
             tools: "工具",
+            logout: "退出登录",
             tabs: {
                 assistant: "智能助手",
                 training: "AI 学院",
@@ -272,6 +285,16 @@ const App: React.FC = () => {
         }
     };
 
+    // --- Authentication Guard ---
+    if (!isAuthenticated) {
+        return (
+            <>
+                <ThreeBackground showDragon={true} theme={theme} />
+                <LoginPage onLoginSuccess={() => setIsAuthenticated(true)} />
+            </>
+        );
+    }
+
     return (
         <div className="flex h-screen bg-black text-gray-100 font-sans overflow-hidden relative transition-colors duration-500">
             <ThreeBackground showDragon={showDragon} theme={theme} />
@@ -363,6 +386,9 @@ const App: React.FC = () => {
                             </button>
                             <button onClick={toggleTheme} className="w-full py-2 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-mono text-gray-400 border border-white/5 flex items-center justify-center gap-2">
                                 {theme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode'}
+                            </button>
+                            <button onClick={handleLogout} className="w-full py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-xs font-bold text-red-400 border border-red-500/20 flex items-center justify-center">
+                                {t.logout}
                             </button>
                         </div>
                     </div>
