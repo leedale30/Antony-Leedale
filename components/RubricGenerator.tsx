@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { getGeminiAI } from '../services/geminiService';
 import type { Language } from '../App';
@@ -126,7 +127,7 @@ export const RubricGenerator: React.FC<{ lang: Language }> = ({ lang }) => {
                         {t.copy}
                     </button>
                     <div className="prose prose-invert prose-lg max-w-none bg-white/5 p-8 rounded-xl min-w-[600px]">
-                        <div className="whitespace-pre-wrap font-serif">{result}</div>
+                        <div className="whitespace-pre-wrap">{result}</div>
                     </div>
                 </div>
             )}

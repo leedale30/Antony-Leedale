@@ -1,6 +1,8 @@
+
 import React, { useState, useCallback } from 'react';
 import { getGeminiAI, fileToBase64 } from '../services/geminiService';
 import type { Language } from '../App';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 export const AssessmentTools: React.FC<{ lang: Language }> = ({ lang }) => {
     const [mode, setMode] = useState<'text' | 'image'>('text');
@@ -166,9 +168,7 @@ export const AssessmentTools: React.FC<{ lang: Language }> = ({ lang }) => {
 
             {feedback && (
                 <div className="glass-panel p-8 rounded-2xl border border-gem-purple/30 animate-fade-in">
-                    <div className="prose prose-invert prose-lg max-w-none">
-                         <div className="whitespace-pre-wrap">{feedback}</div>
-                    </div>
+                    <MarkdownRenderer content={feedback} />
                 </div>
             )}
         </div>

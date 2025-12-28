@@ -1,9 +1,10 @@
+
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { getGeminiAI, Type } from '../services/geminiService';
 import type { Language } from '../App';
-import { IconMusic, IconHeadphones } from './Icons';
+import { IconMusic, IconHeadphones, IconCode } from './Icons';
 
-type Tab = 'playlist' | 'melody';
+type Tab = 'playlist' | 'lyria';
 
 interface Song {
     title: string;
@@ -18,12 +19,12 @@ export const ClassroomDj: React.FC<{ lang: Language }> = ({ lang }) => {
         en: {
             title: "Classroom DJ",
             subtitle: "Curate the perfect vibe for your classroom.",
-            tabs: { playlist: "Smart Playlist", melody: "Melody Maker" }
+            tabs: { playlist: "Smart Playlist", lyria: "Lyria Studio" }
         },
         zh: {
             title: "课堂 DJ",
             subtitle: "为您的课堂营造完美的氛围。",
-            tabs: { playlist: "智能歌单", melody: "旋律生成器" }
+            tabs: { playlist: "智能歌单", lyria: "Lyria 音乐工作室" }
         }
     }[lang];
 
@@ -51,7 +52,7 @@ export const ClassroomDj: React.FC<{ lang: Language }> = ({ lang }) => {
 
             <div className="flex-1 glass-panel rounded-3xl p-6 border border-pink-500/20 bg-black/40 relative overflow-hidden">
                 {activeTab === 'playlist' && <PlaylistCurator lang={lang} />}
-                {activeTab === 'melody' && <MelodyMaker lang={lang} />}
+                {activeTab === 'lyria' && <LyriaStudio lang={lang} />}
             </div>
         </div>
     );
@@ -174,33 +175,44 @@ const PlaylistCurator: React.FC<{ lang: Language }> = ({ lang }) => {
     );
 };
 
-const MelodyMaker: React.FC<{ lang: Language }> = ({ lang }) => {
+const LyriaStudio: React.FC<{ lang: Language }> = ({ lang }) => {
+    const [mode, setMode] = useState<'melody' | 'lyrics'>('melody');
     const [mood, setMood] = useState('Epic Victory');
     const [isPlaying, setIsPlaying] = useState(false);
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const audioCtxRef = useRef<AudioContext | null>(null);
     const analyserRef = useRef<AnalyserNode | null>(null);
     const animationRef = useRef<number | null>(null);
+    
+    // Output States
     const [melody, setMelody] = useState<{ note: string, duration: number }[]>([]);
+    const [lyrics, setLyrics] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    
     const ai = getGeminiAI();
 
     const t = {
         en: {
-            title: "AI Composer",
-            ph: "e.g. Relaxing Rain, Cyberpunk Chase, Medieval Village",
-            btn: "Generate Melody",
+            title: "Lyria AI Studio",
+            ph: "Describe the vibe (e.g. Cyberpunk Chase, Gentle Lullaby)",
+            btnMelody: "Compose Melody",
+            btnLyrics: "Write Lyrics",
             btnPlay: "Play Loop",
             btnStop: "Stop",
-            loading: "Composing..."
+            loading: "Lyria is thinking...",
+            modeMelody: "Melody",
+            modeLyrics: "Songwriter"
         },
         zh: {
-            title: "AI 作曲家",
-            ph: "例如：轻松雨声，赛博朋克追逐，中世纪村庄",
-            btn: "生成旋律",
+            title: "Lyria AI 工作室",
+            ph: "描述氛围（例如：赛博朋克追逐，轻柔摇篮曲）",
+            btnMelody: "创作旋律",
+            btnLyrics: "创作歌词",
             btnPlay: "循环播放",
             btnStop: "停止",
-            loading: "作曲中..."
+            loading: "Lyria 思考中...",
+            modeMelody: "旋律",
+            modeLyrics: "作词"
         }
     }[lang];
 
@@ -208,16 +220,19 @@ const MelodyMaker: React.FC<{ lang: Language }> = ({ lang }) => {
         if (!ai || !mood) return;
         setIsLoading(true);
         setIsPlaying(false);
-        if (audioCtxRef.current) audioCtxRef.current.close();
-        audioCtxRef.current = null;
+        setMelody([]);
+        if (audioCtxRef.current) {
+            audioCtxRef.current.close();
+            audioCtxRef.current = null;
+        }
 
         try {
-            const prompt = `Compose a short, looping melody (4-8 bars) for this mood: "${mood}".
-            Format: Return a JSON array of objects. Each object has "note" (frequency in Hz, e.g. 261.63 for C4) and "duration" (in seconds, e.g. 0.5).
-            Keep it simple monophonic. Use a variety of notes appropriate for the mood.`;
+            const prompt = `Act as Google's Lyria Music AI. Compose a creative, complex melody loop (8-16 notes) for this mood: "${mood}".
+            Format: Return a JSON array of objects. Each object has "note" (frequency in Hz, e.g. 261.63 for C4) and "duration" (in seconds, e.g. 0.25, 0.5, 1.0).
+            Use a variety of pitches and rhythmic values to make it musical.`;
 
             const response = await ai.models.generateContent({
-                model: 'gemini-3-flash-preview',
+                model: 'gemini-3-pro-preview',
                 contents: prompt,
                 config: {
                     responseMimeType: 'application/json',
@@ -246,6 +261,37 @@ const MelodyMaker: React.FC<{ lang: Language }> = ({ lang }) => {
         }
     }, [ai, mood]);
 
+    const generateLyrics = useCallback(async () => {
+        if (!ai || !mood) return;
+        setIsLoading(true);
+        setLyrics('');
+
+        try {
+            const prompt = `Act as a world-class songwriter using the Lyria creative engine.
+            Write song lyrics for the theme/mood: "${mood}".
+            Language: ${lang === 'zh' ? 'Chinese (Simplified)' : 'English'}.
+            
+            Structure:
+            [Verse 1]
+            [Chorus]
+            [Verse 2]
+            [Outro]
+            
+            Include BPM and Key suggestion at the top.`;
+
+            const response = await ai.models.generateContent({
+                model: 'gemini-3-pro-preview',
+                contents: prompt,
+            });
+
+            setLyrics(response.text || "");
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [ai, mood, lang]);
+
     const play = async () => {
         if (!melody.length) return;
         setIsPlaying(true);
@@ -253,36 +299,49 @@ const MelodyMaker: React.FC<{ lang: Language }> = ({ lang }) => {
         audioCtxRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
         analyserRef.current = audioCtxRef.current!.createAnalyser();
         analyserRef.current.fftSize = 256;
+        const mainGain = audioCtxRef.current!.createGain();
+        mainGain.gain.value = 0.5;
+        mainGain.connect(analyserRef.current!);
+        analyserRef.current!.connect(audioCtxRef.current!.destination);
         
         let startTime = audioCtxRef.current!.currentTime + 0.1;
 
         const scheduleNote = (freq: any, dur: number, time: number) => {
             const osc = audioCtxRef.current!.createOscillator();
-            const gain = audioCtxRef.current!.createGain();
+            const noteGain = audioCtxRef.current!.createGain();
             
-            osc.type = 'triangle'; // Softer sound
+            osc.type = 'sawtooth'; // Richer sound for Lyria vibe
             osc.frequency.value = freq;
             
-            osc.connect(gain);
-            gain.connect(analyserRef.current!);
-            analyserRef.current!.connect(audioCtxRef.current!.destination);
+            // Filter for synth effect
+            const filter = audioCtxRef.current!.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(1000, time);
+            filter.frequency.exponentialRampToValueAtTime(200, time + dur);
+
+            osc.connect(filter);
+            filter.connect(noteGain);
+            noteGain.connect(mainGain);
             
             osc.start(time);
             
             // Envelope
-            gain.gain.setValueAtTime(0, time);
-            gain.gain.linearRampToValueAtTime(0.3, time + 0.05);
-            gain.gain.exponentialRampToValueAtTime(0.001, time + dur - 0.05);
+            noteGain.gain.setValueAtTime(0, time);
+            noteGain.gain.linearRampToValueAtTime(0.4, time + 0.05);
+            noteGain.gain.exponentialRampToValueAtTime(0.001, time + dur - 0.05);
             
             osc.stop(time + dur);
         };
 
-        // Loop schedule logic handled simply by scheduling a chunk
-        // For infinite loop, we'd need a lookahead scheduler, but for this demo, let's just schedule one pass or a few loops
-        for(let i=0; i<4; i++) { // Loop 4 times
+        // Loop 4 times
+        let totalDur = 0;
+        melody.forEach(m => totalDur += m.duration);
+        
+        for(let i=0; i<4; i++) { 
+            let cursor = 0;
             melody.forEach(m => {
-                scheduleNote(m.note, m.duration, startTime);
-                startTime += m.duration;
+                scheduleNote(m.note, m.duration, startTime + (i * totalDur) + cursor);
+                cursor += m.duration;
             });
         }
         
@@ -297,6 +356,11 @@ const MelodyMaker: React.FC<{ lang: Language }> = ({ lang }) => {
             
             analyserRef.current.getByteFrequencyData(dataArray);
             
+            // Create gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvasRef.current.height);
+            gradient.addColorStop(0, '#f472b6'); // Pink
+            gradient.addColorStop(1, '#a855f7'); // Purple
+
             ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
             
             const barWidth = (canvasRef.current.width / bufferLength) * 2.5;
@@ -304,8 +368,8 @@ const MelodyMaker: React.FC<{ lang: Language }> = ({ lang }) => {
             let x = 0;
             
             for(let i = 0; i < bufferLength; i++) {
-                barHeight = dataArray[i] / 2;
-                ctx.fillStyle = `rgb(${barHeight + 100}, 50, 150)`;
+                barHeight = dataArray[i] / 1.5;
+                ctx.fillStyle = gradient;
                 ctx.fillRect(x, canvasRef.current.height - barHeight, barWidth, barHeight);
                 x += barWidth + 1;
             }
@@ -316,11 +380,11 @@ const MelodyMaker: React.FC<{ lang: Language }> = ({ lang }) => {
         };
         draw();
         
-        // Auto stop visualizer roughly when music ends
+        // Auto stop
         setTimeout(() => {
             setIsPlaying(false);
             if(animationRef.current) cancelAnimationFrame(animationRef.current);
-        }, (startTime - audioCtxRef.current!.currentTime) * 1000);
+        }, (totalDur * 4 + 0.5) * 1000);
     };
 
     const stop = () => {
@@ -335,47 +399,99 @@ const MelodyMaker: React.FC<{ lang: Language }> = ({ lang }) => {
     };
 
     return (
-        <div className="h-full flex flex-col items-center justify-center max-w-3xl mx-auto">
-            <div className="w-full glass-panel p-6 rounded-2xl border border-white/10 mb-8 bg-black/50 relative overflow-hidden h-64 flex items-end">
-                <canvas ref={canvasRef} width={600} height={256} className="w-full h-full absolute inset-0 z-0" />
-                <div className="relative z-10 w-full text-center pb-8 pointer-events-none">
-                    {!isPlaying && <div className="text-gray-500 text-sm">Visualizer Ready</div>}
+        <div className="h-full flex flex-col items-center max-w-3xl mx-auto">
+            {/* Mode Switcher */}
+            <div className="flex space-x-1 bg-black/30 p-1 rounded-lg mb-6 border border-white/10">
+                <button 
+                    onClick={() => setMode('melody')} 
+                    className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${mode === 'melody' ? 'bg-white/20 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+                >
+                    {t.modeMelody}
+                </button>
+                <button 
+                    onClick={() => setMode('lyrics')} 
+                    className={`px-4 py-1.5 rounded-md text-sm font-bold transition-all ${mode === 'lyrics' ? 'bg-white/20 text-white shadow' : 'text-gray-400 hover:text-white'}`}
+                >
+                    {t.modeLyrics}
+                </button>
+            </div>
+
+            {mode === 'melody' ? (
+                <>
+                    <div className="w-full glass-panel p-6 rounded-2xl border border-pink-500/30 mb-8 bg-black/60 relative overflow-hidden h-64 flex items-end shadow-2xl">
+                        <canvas ref={canvasRef} width={600} height={256} className="w-full h-full absolute inset-0 z-0 opacity-80" />
+                        <div className="relative z-10 w-full text-center pb-8 pointer-events-none">
+                            {!isPlaying && !isLoading && <div className="text-gray-500 text-sm font-mono tracking-widest">LYRIA ENGINE READY</div>}
+                            {isLoading && <div className="text-pink-400 text-sm font-bold animate-pulse">{t.loading}</div>}
+                        </div>
+                    </div>
+
+                    <div className="w-full flex gap-4 mb-4">
+                        <input 
+                            type="text" 
+                            value={mood} 
+                            onChange={e => setMood(e.target.value)} 
+                            placeholder={t.ph}
+                            className="flex-1 bg-black/40 border border-gray-600 rounded-xl p-4 text-white focus:border-pink-500 outline-none"
+                        />
+                        <button 
+                            onClick={generateMelody} 
+                            disabled={isLoading}
+                            className="bg-gradient-to-r from-pink-600 to-purple-600 text-white font-bold px-6 rounded-xl hover:opacity-90 disabled:opacity-50 transition-all border border-white/10 shadow-lg"
+                        >
+                            {isLoading ? "..." : t.btnMelody}
+                        </button>
+                    </div>
+
+                    <div className="flex gap-4 w-full">
+                        <button 
+                            onClick={play} 
+                            disabled={isPlaying || melody.length === 0}
+                            className="flex-1 bg-white/10 text-white font-bold py-4 rounded-xl hover:bg-white/20 disabled:opacity-30 transition-all border border-white/10 flex items-center justify-center gap-2"
+                        >
+                            <span>▶</span> {t.btnPlay}
+                        </button>
+                        <button 
+                            onClick={stop} 
+                            disabled={!isPlaying}
+                            className="px-8 bg-red-900/50 text-red-300 font-bold rounded-xl hover:bg-red-900/80 disabled:opacity-30 transition-all border border-red-500/30"
+                        >
+                            ■
+                        </button>
+                    </div>
+                </>
+            ) : (
+                <div className="w-full h-full flex flex-col">
+                    <div className="flex gap-4 mb-4">
+                        <input 
+                            type="text" 
+                            value={mood} 
+                            onChange={e => setMood(e.target.value)} 
+                            placeholder={t.ph}
+                            className="flex-1 bg-black/40 border border-gray-600 rounded-xl p-4 text-white focus:border-pink-500 outline-none"
+                        />
+                        <button 
+                            onClick={generateLyrics} 
+                            disabled={isLoading}
+                            className="bg-gradient-to-r from-pink-600 to-purple-600 text-white font-bold px-6 rounded-xl hover:opacity-90 disabled:opacity-50 transition-all border border-white/10 shadow-lg"
+                        >
+                            {isLoading ? "..." : t.btnLyrics}
+                        </button>
+                    </div>
+                    
+                    <div className="flex-1 glass-panel p-6 rounded-2xl border border-white/10 bg-black/20 overflow-y-auto">
+                        {lyrics ? (
+                            <div className="prose prose-invert prose-p:text-gray-300 prose-headings:text-pink-400 max-w-none whitespace-pre-wrap text-center leading-loose">
+                                {lyrics}
+                            </div>
+                        ) : (
+                            <div className="h-full flex items-center justify-center text-gray-600 italic">
+                                {isLoading ? t.loading : "Lyrics will appear here..."}
+                            </div>
+                        )}
+                    </div>
                 </div>
-            </div>
-
-            <div className="w-full flex gap-4 mb-4">
-                <input 
-                    type="text" 
-                    value={mood} 
-                    onChange={e => setMood(e.target.value)} 
-                    placeholder={t.ph}
-                    className="flex-1 bg-black/40 border border-gray-600 rounded-xl p-4 text-white focus:border-pink-500 outline-none"
-                />
-                <button 
-                    onClick={generateMelody} 
-                    disabled={isLoading}
-                    className="bg-white/10 text-white font-bold px-6 rounded-xl hover:bg-white/20 disabled:opacity-50 transition-all border border-white/20"
-                >
-                    {isLoading ? t.loading : t.btn}
-                </button>
-            </div>
-
-            <div className="flex gap-4 w-full">
-                <button 
-                    onClick={play} 
-                    disabled={isPlaying || melody.length === 0}
-                    className="flex-1 bg-pink-600 text-white font-bold py-4 rounded-xl hover:bg-pink-500 disabled:opacity-50 transition-all shadow-lg text-xl flex items-center justify-center gap-2"
-                >
-                    <span>▶</span> {t.btnPlay}
-                </button>
-                <button 
-                    onClick={stop} 
-                    disabled={!isPlaying}
-                    className="px-8 bg-gray-800 text-white font-bold rounded-xl hover:bg-gray-700 disabled:opacity-50 transition-all border border-gray-600"
-                >
-                    ■
-                </button>
-            </div>
+            )}
         </div>
     );
 };

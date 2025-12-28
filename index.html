@@ -1,38 +1,54 @@
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>SUIS Smart Hub / 智协</title>
+    
+    <!-- Fonts: Outfit for UI, JetBrains Mono for Code/Data -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
+        darkMode: 'class',
         theme: {
           extend: {
+            fontFamily: {
+              sans: ['Outfit', 'sans-serif'],
+              mono: ['JetBrains Mono', 'monospace'],
+            },
             colors: {
-              'glass-dark': 'rgba(20, 20, 25, 0.7)',
-              'glass-light': 'rgba(255, 255, 255, 0.1)',
-              'gem-onyx': '#0F172A', // Darker slate
-              'gem-slate': '#1E293B',
-              'gem-blue-light': '#38BDF8', // Sky blue
+              'glass-border': 'rgba(255, 255, 255, 0.08)',
+              'gem-onyx': '#050505', 
+              'gem-slate': '#0F172A',
+              'gem-blue-light': '#7DD3FC',
               'gem-blue': '#0EA5E9',
               'gem-teal': '#2DD4BF',
-              'gem-purple': '#A855F7',
-              'gem-pink': '#EC4899',
+              'gem-purple': '#C084FC',
+              'gem-pink': '#F472B6',
             },
             animation: {
               'pulse-fast': 'pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-              'fade-in': 'fadeIn 0.5s ease-in-out',
+              'fade-in': 'fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1)',
               'float': 'float 6s ease-in-out infinite',
+              'glow': 'glow 3s ease-in-out infinite alternate',
             },
             keyframes: {
               fadeIn: {
-                '0%': { opacity: '0', transform: 'translateY(10px)' },
-                '100%': { opacity: '1', transform: 'translateY(0)' },
+                '0%': { opacity: '0', transform: 'translateY(15px) scale(0.98)' },
+                '100%': { opacity: '1', transform: 'translateY(0) scale(1)' },
               },
               float: {
                 '0%, 100%': { transform: 'translateY(0)' },
                 '50%': { transform: 'translateY(-10px)' },
+              },
+              glow: {
+                '0%': { boxShadow: '0 0 20px -5px rgba(14, 165, 233, 0.3)' },
+                '100%': { boxShadow: '0 0 30px 5px rgba(168, 85, 247, 0.4)' },
               }
             }
           }
@@ -40,18 +56,100 @@
       }
     </script>
     <style>
+      :root {
+        --glass-surface: rgba(255, 255, 255, 0.03);
+        --glass-border: rgba(255, 255, 255, 0.08);
+        --glass-highlight: rgba(255, 255, 255, 0.15);
+        --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      }
+
       body {
-        background-color: #000;
+        background-color: #02040a; /* Deepest space black */
         margin: 0;
-        overflow: hidden; /* Hide scrollbar on body, handle in React */
+        overflow: hidden;
+        color: #e2e8f0;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        transition: background-color 0.5s ease, color 0.5s ease;
       }
-      .glass-panel {
-        background: rgba(15, 23, 42, 0.65);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+
+      /* Light Mode Overrides */
+      body.light-mode {
+        background-color: #f0f4f8 !important; /* Soft blue-gray light bg */
+        color: #1e293b !important; /* Slate 800 */
       }
+
+      /* Invert Utility Classes for Light Mode */
+      body.light-mode .text-white { color: #0f172a !important; }
+      body.light-mode .text-gray-100 { color: #1e293b !important; }
+      body.light-mode .text-gray-200 { color: #334155 !important; }
+      body.light-mode .text-gray-300 { color: #475569 !important; }
+      body.light-mode .text-gray-400 { color: #64748b !important; }
+      body.light-mode .text-gray-500 { color: #94a3b8 !important; }
+      
+      body.light-mode .bg-black { background-color: #f0f4f8 !important; }
+      body.light-mode .bg-black\/80 { background-color: rgba(255, 255, 255, 0.95) !important; }
+      body.light-mode .bg-black\/40 { background-color: rgba(255, 255, 255, 0.6) !important; }
+      body.light-mode .bg-black\/20 { background-color: rgba(255, 255, 255, 0.4) !important; }
+      
+      body.light-mode .bg-white\/5 { background-color: rgba(0, 0, 0, 0.03) !important; }
+      body.light-mode .bg-white\/10 { background-color: rgba(0, 0, 0, 0.06) !important; }
+      
+      body.light-mode .border-white\/10 { border-color: rgba(0, 0, 0, 0.08) !important; }
+      body.light-mode .border-white\/5 { border-color: rgba(0, 0, 0, 0.04) !important; }
+
+      /* Update Glass Panel for Light Mode */
+      body.light-mode .glass-panel {
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.8) 0%, rgba(240, 245, 255, 0.9) 100%);
+        border: 1px solid rgba(0, 0, 0, 0.05);
+        box-shadow: 
+          0 8px 30px rgba(0, 0, 0, 0.08),
+          inset 0 1px 0 rgba(255, 255, 255, 0.8);
+      }
+
+      /* Update Inputs for Light Mode */
+      body.light-mode .glass-input, 
+      body.light-mode input, 
+      body.light-mode textarea, 
+      body.light-mode select {
+        background-color: rgba(255, 255, 255, 0.8) !important;
+        color: #0f172a !important;
+        border-color: rgba(0, 0, 0, 0.1) !important;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+      }
+
+      /* Hover States fix for Light Mode buttons */
+      body.light-mode .hover\:text-white:hover { color: #000 !important; }
+      body.light-mode .hover\:bg-white\/10:hover { background-color: rgba(0,0,0,0.08) !important; }
+
+      /* Landing Page Title Gradient Fix */
+      body.light-mode h1.font-black.text-transparent {
+         background-image: linear-gradient(to bottom, #0f172a, #475569) !important;
+      }
+
+      /* Scrollbar */
+      ::-webkit-scrollbar {
+          width: 6px;
+          height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+          background: rgba(255, 255, 255, 0.02);
+      }
+      ::-webkit-scrollbar-thumb {
+          background: rgba(255, 255, 255, 0.1);
+          border-radius: 3px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, 0.2);
+      }
+      
+      body.light-mode ::-webkit-scrollbar-thumb {
+          background: rgba(0, 0, 0, 0.15);
+      }
+      body.light-mode ::-webkit-scrollbar-track {
+          background: rgba(0, 0, 0, 0.02);
+      }
+
       .scrollbar-hide::-webkit-scrollbar {
           display: none;
       }
@@ -59,20 +157,90 @@
           -ms-overflow-style: none;
           scrollbar-width: none;
       }
+
+      /* Premium Glass Component */
+      .glass-panel {
+        background: linear-gradient(145deg, rgba(20, 25, 35, 0.7) 0%, rgba(10, 12, 18, 0.8) 100%);
+        backdrop-filter: blur(20px) saturate(140%);
+        -webkit-backdrop-filter: blur(20px) saturate(140%);
+        border: 1px solid var(--glass-border);
+        box-shadow: 
+          0 4px 30px rgba(0, 0, 0, 0.3),
+          inset 0 1px 0 rgba(255, 255, 255, 0.05); /* Specular top highlight */
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.5s ease;
+      }
+
+      /* Inset Inputs */
+      .glass-input {
+        background: rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 0.75rem;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+        color: white;
+        font-family: 'Outfit', sans-serif;
+        transition: all 0.3s ease;
+      }
+      .glass-input:focus {
+        background: rgba(0, 0, 0, 0.6);
+        border-color: rgba(56, 189, 248, 0.5); /* Gem Blue */
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.5), 0 0 0 2px rgba(56, 189, 248, 0.2);
+        outline: none;
+      }
+
+      /* Interactive Buttons */
+      .glass-btn {
+        background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 100%);
+        border: 1px solid rgba(255,255,255,0.1);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+      }
+      body.light-mode .glass-btn {
+        background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(240,240,240,0.8) 100%);
+        border: 1px solid rgba(0,0,0,0.05);
+        color: #0f172a;
+      }
+      .glass-btn:hover:not(:disabled) {
+        background: linear-gradient(180deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.05) 100%);
+        border-color: rgba(255,255,255,0.2);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      }
+      body.light-mode .glass-btn:hover:not(:disabled) {
+        background: white;
+        border-color: rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      }
+      .glass-btn:active:not(:disabled) {
+        transform: translateY(0);
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+      }
+      .glass-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      /* Text Gradients */
+      .text-glow {
+        text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+      }
     </style>
-  <script type="importmap">
+<script type="importmap">
 {
   "imports": {
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.28.0",
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+    "react": "https://esm.sh/react@^19.2.3",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+    "react/": "https://esm.sh/react@^19.2.3/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.34.0",
+    "three": "https://esm.sh/three@^0.182.0",
+    "vite": "https://esm.sh/vite@^7.3.0",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^5.1.2"
   }
 }
 </script>
 </head>
-  <body class="text-gray-200 antialiased font-sans">
+  <body class="antialiased font-sans">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

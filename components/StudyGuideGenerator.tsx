@@ -1,6 +1,8 @@
+
 import React, { useState, useCallback } from 'react';
 import { getGeminiAI } from '../services/geminiService';
 import type { Language } from '../App';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 export const StudyGuideGenerator: React.FC<{ lang: Language }> = ({ lang }) => {
     const [input, setInput] = useState('');
@@ -94,9 +96,7 @@ export const StudyGuideGenerator: React.FC<{ lang: Language }> = ({ lang }) => {
                     >
                         {t.copy}
                     </button>
-                    <div className="prose prose-invert prose-lg max-w-none whitespace-pre-wrap leading-relaxed">
-                        {guide}
-                    </div>
+                    <MarkdownRenderer content={guide} />
                 </div>
             )}
         </div>

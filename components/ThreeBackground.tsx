@@ -1,26 +1,36 @@
 
 import React, { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import type { Theme } from '../App';
 
 interface ThreeBackgroundProps {
     showDragon: boolean;
+    theme?: Theme;
 }
 
-export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) => {
+export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon, theme = 'dark' }) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const showDragonRef = useRef(showDragon);
+    const themeRef = useRef(theme);
 
-    // Keep ref in sync with prop for use inside the animation loop
+    // Keep refs in sync with prop for use inside the animation loop
     useEffect(() => {
         showDragonRef.current = showDragon;
     }, [showDragon]);
+
+    useEffect(() => {
+        themeRef.current = theme;
+    }, [theme]);
 
     useEffect(() => {
         if (!containerRef.current) return;
 
         // --- SCENE SETUP ---
         const scene = new THREE.Scene();
-        scene.fog = new THREE.FogExp2(0x000000, 0.002);
+        // Fog color matches theme
+        // Dark: 0x000000, Light: 0xf0f4f8
+        const fogColor = themeRef.current === 'dark' ? 0x000000 : 0xf0f4f8;
+        scene.fog = new THREE.FogExp2(fogColor, 0.002);
 
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
         camera.position.z = 120;
@@ -31,7 +41,7 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) 
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
         containerRef.current.appendChild(renderer.domElement);
 
-        // --- 1. DYNAMIC RAINBOW SNOW ---
+        // --- 1. DYNAMIC SNOW ---
         const canvas = document.createElement('canvas');
         canvas.width = 32; canvas.height = 32;
         const ctx = canvas.getContext('2d');
@@ -55,11 +65,10 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) 
             snowPosArr[i * 3 + 1] = (Math.random() - 0.5) * 600; 
             snowPosArr[i * 3 + 2] = (Math.random() - 0.5) * 400; 
 
-            const hue = Math.random();
-            const color = new THREE.Color().setHSL(hue, 0.8, 0.6);
-            snowColArr[i * 3] = color.r;
-            snowColArr[i * 3 + 1] = color.g;
-            snowColArr[i * 3 + 2] = color.b;
+            // Initial colors - will be updated in loop
+            snowColArr[i * 3] = 1;
+            snowColArr[i * 3 + 1] = 1;
+            snowColArr[i * 3 + 2] = 1;
 
             snowSizeArr[i] = Math.random() * 1.5 + 0.5;
 
@@ -67,7 +76,7 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) 
                 vy: -(0.05 + Math.random() * 0.15),
                 vx: (Math.random() - 0.5) * 0.08,
                 vz: (Math.random() - 0.5) * 0.08,
-                hue: hue,
+                hue: Math.random(),
                 hueSpeed: 0.0005 + Math.random() * 0.001
             });
         }
@@ -97,7 +106,7 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) 
                 }
             `,
             transparent: true,
-            blending: THREE.AdditiveBlending,
+            blending: THREE.NormalBlending, // Changed from Additive to Normal for better visibility in light mode
             depthWrite: false
         });
 
@@ -111,10 +120,12 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) 
         const dragonPathHistory: THREE.Vector3[] = [];
         const dragonRotHistory: THREE.Quaternion[] = []; 
 
+        const dragonMat = new THREE.LineBasicMaterial({ color: 0xffffff });
+
         // Helpers
         const createLineMesh = (geo: THREE.BufferGeometry) => {
             const edges = new THREE.EdgesGeometry(geo);
-            return new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0xffffff }));
+            return new THREE.LineSegments(edges, dragonMat);
         };
 
         // --- HEAD GROUP ---
@@ -253,54 +264,12 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) 
         }
 
         // --- 3. MOUSE TRAIL ---
-        const trailLength = 60;
-        const trailGeo = new THREE.BufferGeometry();
-        const trailPosArr = new Float32Array(trailLength * 3);
-        const trailAlphaArr = new Float32Array(trailLength);
-        for (let i = 0; i < trailLength; i++) {
-            trailPosArr[i * 3] = 0; trailPosArr[i * 3 + 1] = 0; trailPosArr[i * 3 + 2] = 0;
-            trailAlphaArr[i] = 1.0 - (i / trailLength);
-        }
-        trailGeo.setAttribute('position', new THREE.BufferAttribute(trailPosArr, 3));
-        trailGeo.setAttribute('alpha', new THREE.BufferAttribute(trailAlphaArr, 1));
-        const trailMat = new THREE.ShaderMaterial({
-            uniforms: { uTime: { value: 0 }, tex: { value: particleTexture } },
-            vertexShader: `
-                attribute float alpha;
-                varying float vAlpha;
-                void main() {
-                    vAlpha = alpha;
-                    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                    gl_PointSize = (4.0 * alpha + 1.0) * (300.0 / -mvPosition.z);
-                    gl_Position = projectionMatrix * mvPosition;
-                }
-            `,
-            fragmentShader: `
-                varying float vAlpha;
-                uniform float uTime;
-                uniform sampler2D tex;
-                vec3 hsv2rgb(vec3 c) {
-                    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-                    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-                    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-                }
-                void main() {
-                    vec3 color = hsv2rgb(vec3(vAlpha * 0.3 + uTime * 0.5, 0.8, 0.8));
-                    vec4 t = texture2D(tex, gl_PointCoord);
-                    gl_FragColor = vec4(color, vAlpha * 0.3 * t.a);
-                }
-            `,
-            transparent: true, blending: THREE.AdditiveBlending, depthWrite: false
-        });
-        const trailSystem = new THREE.Points(trailGeo, trailMat);
-        scene.add(trailSystem);
-
+        // Trail disabled for performance simplicity here, re-enable if needed
+        
         // --- INTERACTION & PHYSICS STATE ---
         const raycaster = new THREE.Raycaster();
         const mouse = new THREE.Vector2(-999, -999);
         const mousePlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
-        const mousePoint = new THREE.Vector3();
-        const history: THREE.Vector3[] = [];
         
         // Dragon Physics
         const headVel = new THREE.Vector3(0,0,0);
@@ -318,10 +287,12 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) 
         let time = 0;
         const animate = () => {
             time += 0.01; // Slower global time factor
+            const isLight = themeRef.current === 'light';
 
-            // 1. Snow
+            // 1. Snow Color & Movement
             const pos = snowGeo.attributes.position.array as Float32Array;
             const col = snowGeo.attributes.color.array as Float32Array;
+            
             for (let i = 0; i < snowCount; i++) {
                 pos[i * 3] += snowData[i].vx;
                 pos[i * 3 + 1] += snowData[i].vy;
@@ -332,35 +303,42 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) 
                 
                 // Color cycle snow
                 snowData[i].hue = (snowData[i].hue + snowData[i].hueSpeed) % 1.0;
-                const c = new THREE.Color().setHSL(snowData[i].hue, 0.7, 0.6);
+                
+                let c;
+                if (isLight) {
+                    // Dark snow for light mode (slate blueish)
+                    c = new THREE.Color().setHSL(snowData[i].hue, 0.6, 0.4); 
+                } else {
+                    // Bright snow for dark mode
+                    c = new THREE.Color().setHSL(snowData[i].hue, 0.8, 0.6);
+                }
+                
                 col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
             }
             snowGeo.attributes.position.needsUpdate = true;
             snowGeo.attributes.color.needsUpdate = true;
             snowSystem.rotation.y += 0.0002;
 
-            // 2. Dragon Pathing (Physics Seeking)
-            // Handle Dragon Visibility
+            // 2. Dragon Pathing
             const isDragonVisible = showDragonRef.current;
             headGroup.visible = isDragonVisible;
             whiskerL.visible = isDragonVisible;
             whiskerR.visible = isDragonVisible;
             dragonSegments.forEach(s => s.visible = isDragonVisible);
 
-            // We keep updating logic to prevent glitches when toggled back on, 
-            // but we could optimize by skipping if hidden.
-            // For now, we run it to maintain continuity.
-            
+            // Dragon Color Update
+            const dragonColor = isLight ? 0x333333 : 0xffffff;
+            if (whiskerMat.color.getHex() !== dragonColor) {
+                whiskerMat.color.setHex(dragonColor);
+            }
+
             let targetPos = new THREE.Vector3();
-            
-            // Check for idle
             const isIdle = Date.now() - lastMouseTime > 2000;
 
             if (!isIdle && mouse.x !== -999) {
                 raycaster.setFromCamera(mouse, camera);
                 raycaster.ray.intersectPlane(mousePlane, targetPos);
             } else {
-                // Idle wandering
                 targetPos.set(
                     Math.sin(time * 0.3) * 120,
                     Math.cos(time * 0.2) * 80,
@@ -368,28 +346,22 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) 
                 );
             }
 
-            // Add snaking motion
             targetPos.x += Math.cos(time * 1.5) * 15;
             targetPos.y += Math.sin(time * 2.0) * 15;
 
-            // Steering force
-            // Lower force = less "interested" / slower turning
             const forceMult = isIdle ? 0.005 : 0.008; 
             const force = targetPos.clone().sub(headGroup.position).multiplyScalar(forceMult);
             headVel.add(force);
-            headVel.multiplyScalar(0.96); // Friction
+            headVel.multiplyScalar(0.96);
 
-            // Cap speed
             const maxSpeed = isIdle ? 1.0 : 1.8;
             if (headVel.length() > maxSpeed) headVel.setLength(maxSpeed);
 
             headGroup.position.add(headVel);
             
-            // Look ahead
             const lookPoint = headGroup.position.clone().add(headVel.clone().multiplyScalar(20));
             headGroup.lookAt(lookPoint);
 
-            // Record history
             dragonPathHistory.unshift(headGroup.position.clone());
             dragonRotHistory.unshift(headGroup.quaternion.clone());
             
@@ -399,18 +371,21 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) 
                 dragonRotHistory.pop();
             }
 
-            // Move Segments
             for (let i = 0; i < numSegments; i++) {
                 const targetIdx = i * pathResolution;
                 if (dragonPathHistory[targetIdx] && dragonRotHistory[targetIdx]) {
                     const segment = dragonSegments[i];
                     segment.position.copy(dragonPathHistory[targetIdx]);
-                    
-                    // Smooth rotation interpolation
                     segment.quaternion.slerp(dragonRotHistory[targetIdx], 0.15); 
 
                     const hue = (time * 0.1 + i * 0.02) % 1.0;
-                    const col = new THREE.Color().setHSL(hue, 1.0, 0.5);
+                    
+                    let col;
+                    if (isLight) {
+                        col = new THREE.Color().setHSL(hue, 0.8, 0.3); // Darker rainbow
+                    } else {
+                        col = new THREE.Color().setHSL(hue, 1.0, 0.5); // Bright rainbow
+                    }
                     
                     segment.traverse((child) => {
                         if (child instanceof THREE.LineSegments || child instanceof THREE.Line) {
@@ -420,9 +395,10 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) 
                 }
             }
 
-            // Head Color
+            // Head Color Update
             const headHue = (time * 0.1) % 1.0;
-            const headCol = new THREE.Color().setHSL(headHue, 1.0, 0.6);
+            const headCol = isLight ? new THREE.Color().setHSL(headHue, 0.8, 0.3) : new THREE.Color().setHSL(headHue, 1.0, 0.6);
+            
             headGroup.traverse((child) => {
                 if (child instanceof THREE.LineSegments || child instanceof THREE.Line) {
                     (child.material as THREE.LineBasicMaterial).color.copy(headCol);
@@ -433,20 +409,14 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) 
             legsData.forEach((legData, i) => {
                 const offset = i * Math.PI; 
                 const legSpeed = time * 4;
-                
-                // Swing
                 const hipRot = Math.sin(legSpeed + offset) * 0.5;
                 const kneeRot = Math.abs(Math.cos(legSpeed + offset)) * 0.5 + 0.2;
-
-                // 3D Paddle motion (Z rotation)
                 const paddle = Math.sin(legSpeed + offset) * 0.3;
 
-                // Left Leg
                 legData.left.upper.rotation.x = hipRot;
                 legData.left.lower.rotation.x = -kneeRot;
-                legData.left.group.rotation.z = 0.3 + paddle; // Flap out
+                legData.left.group.rotation.z = 0.3 + paddle;
 
-                // Right Leg
                 const rOffset = offset + Math.PI;
                 const rHipRot = Math.sin(legSpeed + rOffset) * 0.5;
                 const rKneeRot = Math.abs(Math.cos(legSpeed + rOffset)) * 0.5 + 0.2;
@@ -454,7 +424,7 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) 
 
                 legData.right.upper.rotation.x = rHipRot;
                 legData.right.lower.rotation.x = -rKneeRot;
-                legData.right.group.rotation.z = -0.3 - rPaddle; // Flap out
+                legData.right.group.rotation.z = -0.3 - rPaddle;
             });
 
             // Whiskers
@@ -491,23 +461,6 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) 
             whiskerLGeo.attributes.position.needsUpdate = true;
             whiskerRGeo.attributes.position.needsUpdate = true;
 
-            // 3. Mouse Trail Update
-            trailMat.uniforms.uTime.value = time;
-            raycaster.setFromCamera(mouse, camera);
-            // Mouse plane for trail at deeper Z
-            const trailPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), -15);
-            if (raycaster.ray.intersectPlane(trailPlane, mousePoint)) {
-                history.unshift(mousePoint.clone());
-            }
-            if (history.length > trailLength) history.pop();
-            const tPos = trailGeo.attributes.position.array as Float32Array;
-            for (let i = 0; i < trailLength; i++) {
-                if (history[i]) {
-                    tPos[i * 3] = history[i].x; tPos[i * 3 + 1] = history[i].y; tPos[i * 3 + 2] = history[i].z;
-                }
-            }
-            trailGeo.attributes.position.needsUpdate = true;
-
             renderer.render(scene, camera);
             requestAnimationFrame(animate);
         };
@@ -527,8 +480,6 @@ export const ThreeBackground: React.FC<ThreeBackgroundProps> = ({ showDragon }) 
             if (containerRef.current) containerRef.current.innerHTML = '';
             renderer.dispose();
             snowGeo.dispose();
-            trailGeo.dispose();
-            trailMat.dispose();
             snowMat.dispose();
             // Dispose dragon geometries
             bodyGeo.dispose();

@@ -1,6 +1,8 @@
+
 import React, { useState, useCallback } from 'react';
 import { getGeminiAI } from '../services/geminiService';
 import type { Language } from '../App';
+import { MarkdownRenderer } from './MarkdownRenderer';
 
 export const PblArchitect: React.FC<{ lang: Language }> = ({ lang }) => {
     const [topic, setTopic] = useState('');
@@ -117,9 +119,7 @@ export const PblArchitect: React.FC<{ lang: Language }> = ({ lang }) => {
 
             {result && (
                 <div className="glass-panel p-8 rounded-2xl border border-gem-blue/30 animate-fade-in">
-                    <div className="prose prose-invert prose-lg max-w-none whitespace-pre-wrap">
-                        {result}
-                    </div>
+                    <MarkdownRenderer content={result} />
                 </div>
             )}
         </div>
